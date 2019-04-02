@@ -1,0 +1,140 @@
+import java.util.Scanner;
+import java.util.ArrayList;
+
+public class Main {
+	private static Scanner sc = new Scanner(System.in);
+	
+	public static void displayCommands() {
+		System.out.println("help         - Afiseaza aceasta lista de comenzi\r\n" + 
+				"add          - Adauga o noua persoana (inscriere)\r\n" + 
+				"check        - Verifica daca o persoana este inscrisa la eveniment\r\n" + 
+				"remove       - Sterge o persoana existenta din lista\r\n" + 
+				"update       - Actualizeaza detaliile unei persoane\r\n" + 
+				"guests       - Lista de persoane care participa la eveniment\r\n" + 
+				"waitlist     - Persoanele din lista de asteptare\r\n" + 
+				"available    - Numarul de locuri libere\r\n" + 
+				"guests_no    - Numarul de persoane care participa la eveniment\r\n" + 
+				"waitlist_no  - Numarul de persoane din lista de asteptare\r\n" + 
+				"subscribe_no - Numarul total de persoane inscrise\r\n" + 
+				"search       - Cauta toti invitatii conform sirului de caractere introdus\r\n" + 
+				"quit         - Inchide aplicatia");
+	}
+	public static void main(String[]args) {
+		System.out.println("Bun venit! Introduceti numarul de locuri disponibile la eveniment:");
+		int availableSpots = sc.nextInt();
+		GuestsList.setAvailableSpots(availableSpots);
+		String input = "";
+		while (!input.equals("quit")) {
+			System.out.println("Introduceti o comanda. Pentru a vizualiza comenzile posibile, introduceti \"help\".");
+			input = sc.next();
+			switch (input) {
+				case "help":
+					displayCommands();
+					break;
+				case "add":
+					GuestsList.addParticipant();
+					break;
+				case "check":
+					System.out.println("Introdu modul in care doresti sa realizezi cautarea, astfel:\n\tIntrodu cifra 1 pentru a realiza cautarea dupa prenume si nume.\n\tIntrodu cifra 2 pentru a realiza cautarea dupa email.\n\tIntrodu cifra 3 pentru a realiza cautarea dupa numarul de telefon.");
+					int verificare = sc.nextInt();
+					while (verificare < 1 || verificare > 3) {
+						System.out.println("Ati introdus un numar ce nu corespunde unei optiuni. Introduceti un numar intre 1 si 3, conform modului prezentat anterior:");
+						verificare = sc.nextInt();
+					}
+					if (verificare == 1) { // daca sunt 2 persoane inscrise cu acelasi nume, mai trebuie facute niste verificari !!! 
+						System.out.println("Introdu prenumele pentru a verifica inscrierile:");
+						String firstName = sc.next();
+						System.out.println("Introdu numele pentru a verifica inscrierile:");
+						String lastName = sc.next();
+						System.out.println(firstName + " " + lastName + (GuestsList.searchByNames(firstName, lastName) > 0 ? " " : " nu ") + "este inscris/a la eveniment."); // aici as putea spune si in care lista se afla, chiar ar trebui !! poate chiar si pozitia pe care se afla. !!!!!
+					} else if (verificare == 2) {
+						System.out.println("Introdu email-ul pentru a verifica inscrierile:");
+						String email = sc.next();
+						System.out.println("Persoana cu email-ul " + email + (GuestsList.searchByEmail(email) > 0 ? " " : " nu ") + "este inscrisa la eveniment."); // la fel, sa spun unde e prezenta;
+					} else if (verificare == 3) {
+						System.out.println("Introdu numarul de telefon pentru a verifica inscrierile:");
+						String phoneNumber = sc.next();
+						System.out.println("Persoana cu numarul de telefon " + phoneNumber + (GuestsList.searchByPhoneNumber(phoneNumber) > 0 ? " " : " nu ") + "este inscrisa la eveniment.");
+					}
+					break;
+				case "remove":
+					System.out.println("Se sterge o persoana din lista...");
+					System.out.println("Introdu modul in care doresti sa identifici utilizatorul de sters din lista:\n\tIntrodu cifra 1, pentru a sterge utilizatorul dupa prenume si nume.\n\tIntrodu cifra 2, pentru a sterge utilizatorul dupa email.\n\tIntrodu cifra 3, pentru a sterge utilizatorul dupa numarul de telefon.");
+					int stergere = sc.nextInt();
+					while (stergere < 1 || stergere > 3) {
+						System.out.println("Ai introdus un numar ce nu corespunde unei optiuni. Introdu un numar intre 1 si 3, conform modului descris anterior.");
+						stergere = sc.nextInt();
+					}
+					switch(stergere) {
+						case 1:
+							GuestsList.removePersonByNames();
+							break;
+						case 2: 
+							GuestsList.removePersonByEmail();
+							break;
+						case 3: 
+							GuestsList.removePersonByPhoneNumber();
+							break;
+					}
+					break;
+				case "update":
+					GuestsList.changeDetails();
+					break;
+				case "guests":
+					ArrayList<Guest> participants = GuestsList.getParticipantsList();
+					if (participants.size() == 0) {
+						System.out.println("Lista de participanti este goala.");
+						break;
+					}
+					for (int i = 0; i < participants.size(); i++) {
+						//System.out.println((i + 1) + ". Nume: " + participants.get(i).getFirstName() + " " + participants.get(i).getLastName() + ", Email: " + participants.get(i).getEmail() + ", Telefon: " + participants.get(i).getPhoneNumber());
+						System.out.print(i + 1); 
+						System.out.println(participants.get(i)); // because the toString() method was overridden
+					}
+					break;
+				case "waitlist":
+					ArrayList<Guest> waiting = GuestsList.getWaitingList();
+					if (waiting.size() == 0) {
+						System.out.println("Lista de asteptare este goala.");
+					}
+					for (int i = 0; i < waiting.size(); i++) {
+						//System.out.println((i + 1) + ". Nume: " + waiting.get(i).getFirstName() + " " + waiting.get(i).getLastName() + ", Email: " + waiting.get(i).getEmail() + ", Telefon: " + waiting.get(i).getPhoneNumber());
+						System.out.print(i + 1);
+						System.out.println(waiting.get(i));
+					}
+					break;
+				case "available":
+					System.out.print("Numarul de locuri ramase: ");
+					System.out.println(GuestsList.getAvailableSpots());
+					break;
+				case "guests_no":
+					System.out.print("Numarul de participanti: ");
+					System.out.println(GuestsList.getParticipantsList().size());
+					break;
+				case "waitlist_no":
+					System.out.print("Numarul de persoane in asteptare: ");
+					System.out.println(GuestsList.getWaitingList().size());
+					break;
+				case "subscribe_no":
+					System.out.print("Numarul total de persoane: ");
+					System.out.println(GuestsList.getParticipantsList().size() + GuestsList.getWaitingList().size());
+					break;
+				case "search":
+					System.out.println("Introduceti cuvantul de cautare:");
+					String key = sc.next();
+					ArrayList<Guest> searchResult = GuestsList.partialSearch(key);
+					for (int i = 0; i < searchResult.size(); i++) { 
+						System.out.print((i + 1));
+						System.out.println(searchResult.get(i));
+					}
+					break;
+				case "quit":
+					System.out.println("Aplicatia se inchide... La revedere!");
+					break;
+				default:
+					System.out.println("Ati introdus o comanda gresita.");
+					break;
+			}
+		}
+	}
+}

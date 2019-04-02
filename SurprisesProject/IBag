@@ -1,0 +1,10 @@
+package surprises;
+
+public interface IBag {
+	void put (ISurprise newSurprise); // adds a surprise in the bag;
+	void put (IBag bagOfSurprises); // adds all the surprises from another bag, which will remain empty() afterwards;
+	ISurprise takeOut(); // removes a surprise from the bag and returns it !! according to the distribution technique of the container!!
+	boolean isEmpty(); // checks if the bag is empty or not;
+	int size(); // returns the number of surprises contained;
+}
+ 

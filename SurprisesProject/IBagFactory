@@ -1,0 +1,5 @@
+package surprises;
+
+public interface IBagFactory {
+	IBag makeBag(String type); // creates a new container, according to the specified type. 
+}

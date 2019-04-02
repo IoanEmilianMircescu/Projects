@@ -1,0 +1,27 @@
+package surprises;
+
+import java.util.Random;
+
+public class Candy implements ISurprise {
+	private static final String[] types = {"chocolate", "vanilla", "fruit", "milk", "coffee", "sour", "gummy"};
+	private final String chosenType; 
+	private final int chosenQuantity;
+	private static final int maxQuantity = 21; // quantity will fluctuate between 17 and 21 candies;
+	private static final Random random = new Random();
+	
+	public Candy(String type, int quantity) {
+		this.chosenType = type;
+		this.chosenQuantity = quantity;
+	}
+	
+	@Override
+	public void enjoy() {
+		System.out.println("Enjoy these " + this.chosenQuantity + " delicious " + this.chosenType + " candies!");
+	}
+	
+	public static ISurprise generate() { 
+		int type = random.nextInt(types.length);
+		int quantity = random.nextInt(maxQuantity - 17) + 17;
+		return new Candy(types[type], quantity);
+	}
+}

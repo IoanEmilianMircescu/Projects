@@ -1,0 +1,40 @@
+package surprises;
+
+public class Test {
+	public static void main(String[]args) {
+		AbstractGiveSurprises gsaa = new GiveSurpriseAndApplause("RANDOM", 5); // each of these objects has a bag.
+		AbstractGiveSurprises gsah = new GiveSurpriseAndHug("FIFO", 2);
+		AbstractGiveSurprises gsas = new GiveSurpriseAndSing("LIFO", 2);
+		
+		System.out.println(gsaa.isEmpty());
+		System.out.println(gsah.isEmpty());
+		System.out.println(gsas.isEmpty());
+		
+		ISurprise first = GatherSurprises.gather();
+		System.out.println();
+		gsaa.put(first);
+		gsaa.give();
+		System.out.println();
+		ISurprise[] surprises = GatherSurprises.gather(10);
+		gsaa.putAll(surprises);
+		gsaa.giveAll();
+	
+		gsah.putAll(surprises);
+		gsah.giveAll();
+		
+		gsas.putAll(surprises);
+		gsas.giveAll();
+		
+		BagFactory bagFactory = new BagFactory();
+		IBag tolba = bagFactory.makeBag("FIFO");
+		for(int i = 0; i < 5; i++) {
+			tolba.put(GatherSurprises.gather());
+		}
+		System.out.println(tolba.size());
+		GiveSurpriseAndHug surprisesToGive = new GiveSurpriseAndHug(tolba, 2);
+		IBag tolba2 = bagFactory.makeBag("LIFO");
+		tolba2.put(tolba);
+		System.out.println(tolba.size());
+		System.out.println(tolba2.size()); 
+	}
+}

@@ -1,0 +1,345 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+ 
+public class GuestsList {
+	private static int availableSpots;
+	private static ArrayList<Guest> participantsList = new ArrayList<Guest>();
+	private static ArrayList<Guest> waitingList = new ArrayList<Guest>();
+	private static Scanner sc = new Scanner(System.in);
+
+	private static int noOfDigits (int x) {
+		if (x == 0) {
+			return 1;
+		}
+		int counter = 0;
+		while (x > 0) {
+			x /= 10;
+			counter++;
+		}
+		return counter;
+	}
+	private static int computeSpecialNumber (int result, int noOfDigits, int index) {
+		int specNr = result;
+		for (int x = noOfDigits; x > 0; x--) {
+			specNr *= 10;
+		}
+		specNr += index;
+		return specNr;
+	}
+	
+	public static int searchByNames(String firstName, String lastName) { // 1 if found in Participants List, 2 if found in Waiting list, -1 if not found;
+		for (int i = 0; i < GuestsList.participantsList.size(); i++) {
+			if (GuestsList.participantsList.get(i).getFirstName().toLowerCase().equals(firstName.toLowerCase()) && GuestsList.participantsList.get(i).getLastName().toLowerCase().equals(lastName.toLowerCase())) {
+				// now we will have a number such as "155", where 1 indicates the list, and 55 the index at which the person is found.
+				return computeSpecialNumber (1, noOfDigits(i), i);
+			}
+		}
+		for (int i = 0; i < GuestsList.waitingList.size(); i++) {
+			if(GuestsList.waitingList.get(i).getFirstName().toLowerCase().equals(firstName.toLowerCase()) && GuestsList.waitingList.get(i).getLastName().toLowerCase().equals(lastName.toLowerCase())) {
+				return computeSpecialNumber (2, noOfDigits(i), i);
+			}
+		}
+		return -1;
+	}
+
+	public static int searchByEmail(String email) { // necessary in searches is to bring the compared strings to LOWERCASE or UPPERCASE, so no differences occur from the case differences!!! 
+		for (int i = 0; i < GuestsList.participantsList.size(); i++) {
+			if (GuestsList.participantsList.get(i).getEmail().toLowerCase().equals(email.toLowerCase())) {
+				return computeSpecialNumber (1, noOfDigits(i), i); // argument 1 for participants list; then, the rest of the number is the index.
+			}
+		}
+		for (int i = 0; i < GuestsList.waitingList.size(); i++) {
+			if (GuestsList.waitingList.get(i).getEmail().toLowerCase().equals(email.toLowerCase())) {
+				return computeSpecialNumber (2, noOfDigits(i), i); // argument 2 for waiting list;
+			}
+		}
+		return -1;
+	}
+
+	public static int searchByPhoneNumber(String phoneNumber) {
+		for(int i = 0; i < GuestsList.participantsList.size(); i++) {
+			if (GuestsList.participantsList.get(i).getPhoneNumber().equals(phoneNumber)) {
+				return computeSpecialNumber (1, noOfDigits(i), i);
+			}
+		}
+		for (int i = 0; i < GuestsList.waitingList.size(); i++) {
+			if (GuestsList.waitingList.get(i).getPhoneNumber().equals(phoneNumber)) {
+				return computeSpecialNumber (2, noOfDigits(i), i);
+			}
+		}
+		return -1;
+	}
+	public static int addParticipant () {
+		System.out.println("Se introduce o noua persoana...");
+		System.out.println("Va rugam introduceti adresa de email:");
+		String email = sc.next();
+		while (!validateEmail(email)) {
+			System.out.println("Ati introdus o adresa de email intr-un format necorespunzator. Va rog sa reintroduceti. Format valid: nume@exemplu.com");
+			email = sc.next();
+		}
+		sc.nextLine();
+		if (searchByEmail(email) < 0) { // maybe a person with the same name may want to be introduced. so a better search here is done either by email or phone number.
+			System.out.println("Va rugam introduceti prenumele:");
+			String firstName = sc.next();
+			while (!validateName(firstName)) {
+				System.out.println("Ati introdus cifre sau alte caractere in nume. Va rugam introduceti un nume ce contine strict litere."); //este permisa cratima, in cazul mai multor prenume;
+				firstName = sc.next();
+			}
+			sc.nextLine();
+			System.out.println("Va rugam introduceti numele:");
+			String lastName = sc.nextLine();  
+			System.out.println("Va rugam introduceti numarul de telefon, in format de tip +40712345678: ");
+			String phoneNumber = sc.next();
+			while (!validatePhoneNumber(phoneNumber)) {
+				System.out.println("Numarul de telefon introdus nu corespunde formatului cerut: +40712345678. Va rugam reintroduceti:");
+				phoneNumber = sc.next();
+			}
+			if (availableSpots > 0) {
+				GuestsList.participantsList.add(new Guest(firstName, lastName, email, phoneNumber));
+				System.out.println("Felicitari, " + firstName + "! Locul tau la eveniment este confirmat. Te asteptam!");
+				availableSpots--;
+				return 0;
+			} else {
+				GuestsList.waitingList.add(new Guest(firstName, lastName, email, phoneNumber));
+				System.out.println(firstName + ", te-ai inscris cu succes in lista de asteptare si ai primit numarul de ordine " + GuestsList.waitingList.size() + ". Te vom notifica daca un loc devine disponibil.");
+				return GuestsList.waitingList.size();
+			}
+		} else {
+			System.out.println("Acest email a mai fost introdus.");
+		}
+		return -1;
+	}
+
+	public static boolean removePersonByNames() {
+		System.out.println("Va rugam introduceti prenumele persoanei pe care doriti sa o eliminati din lista.");
+		String firstName = sc.next(); // cu nextLine nu functioneaza ! 
+		sc.nextLine(); 
+		System.out.println("Va rugam introduceti numele persoanei pe care doriti sa o eliminati din lista.");
+		String lastName = sc.next();
+		int whereIsPerson = GuestsList.searchByNames(firstName, lastName);
+		return GuestsList.genericRemove(whereIsPerson);
+	}
+
+	public static boolean removePersonByEmail() {
+		System.out.println("Va rugam introduceti adresa de email a persoanei pe care doriti sa o eliminati din lista.");
+		String email = sc.next();
+		int whereIsPerson = GuestsList.searchByEmail(email);
+		return GuestsList.genericRemove(whereIsPerson);
+	}
+
+	public static boolean removePersonByPhoneNumber() {
+		System.out.println("Va rugam sa introduceti numarul de telefon al persoanei pe care doriti sa o eliminati din lista, in format +40712345678:");
+		String phoneNumber = sc.next();
+		while (!validatePhoneNumber(phoneNumber)) {
+			System.out.println("Numarul de telefon introdus nu corespunde formatului cerut: +40712345678. Va rugam reintroduceti:");
+			phoneNumber = sc.next();
+		}
+		int whereIsPerson = GuestsList.searchByPhoneNumber(phoneNumber);
+		return GuestsList.genericRemove(whereIsPerson);
+	}
+	private static boolean genericRemove(int whereIsPerson) /*the special number is the parameter*/ {
+		if (whereIsPerson < 0) {
+			System.out.println("Persoana nu a fost gasita in niciuna dintre liste.");
+			return false;
+		}
+		String localization = whereIsPerson + "";
+		if (localization.charAt(0) == '1') { // persoana e in lista de participanti.
+			int indexInParticipantsList = Integer.valueOf(localization.substring(1)).intValue();
+			GuestsList.participantsList.remove(indexInParticipantsList);
+			if (GuestsList.waitingList.size() > 0) {
+				GuestsList.participantsList.add(GuestsList.waitingList.get(0));
+				System.out.println("Felicitari, " + GuestsList.participantsList.get(GuestsList.participantsList.size() - 1).getFirstName() + " " + GuestsList.participantsList.get(GuestsList.participantsList.size() - 1).getLastName() + "! Ai trecut din lista de asteptare in lista de participanti! Locul tau la eveniment este confirmat! Te asteptam!");
+				GuestsList.waitingList.remove(0);
+			} else {
+				GuestsList.availableSpots++;
+			}
+			System.out.println("Stergerea persoanei s-a realizat cu succes!");
+			return true;
+		}
+		if (localization.charAt(0) == '2') { // persoana e in lista de asteptare. 
+			int indexInWaitingList = Integer.valueOf(localization.substring(1)).intValue();
+			GuestsList.waitingList.remove(indexInWaitingList);
+			System.out.println("Stergerea persoanei s-a realizat cu succes!");
+			return true;
+		}
+		return false;
+	}
+	public static void changeDetails() {
+		System.out.println("Introduceti modul in care doriti sa cautati persoana in liste.\n\tIntroduceti 1 pentru cautare dupa nume si prenume.\n\tIntroduceti 2 pentru cautare dupa email.\n\tIntroduceti 3 pentru cautare dupa numarul de telefon.");
+		int answer = sc.nextInt();
+		int specialNumber = -1;
+		if (answer == 1) {			
+			System.out.println("Introduceti prenumele:");
+			String firstName = sc.next();
+			System.out.println("Introduceti numele:");
+			String lastName = sc.next();
+			specialNumber = searchByNames(firstName, lastName);
+		} else if (answer == 2) {
+			System.out.println("Introduceti adresa de email:");
+			String email = sc.next();
+			specialNumber = searchByEmail(email);
+		} else if (answer == 3) {
+			System.out.println("Introduceti numarul de telefon:");
+			String phoneNumber = sc.next();
+			specialNumber = searchByPhoneNumber(phoneNumber);
+		}
+		if (specialNumber > 0) { // person has been found; 
+			StringBuilder specialNumberStr = new StringBuilder(specialNumber + "");
+			if (specialNumberStr.charAt(0) == '1') { // this means the person is in the participants list;
+				String indexStr = specialNumberStr.substring(1);
+				int indexInParticipantsList = Integer.valueOf(indexStr).intValue();
+				changeSpecificDetails(GuestsList.participantsList, indexInParticipantsList);
+			} else if (specialNumberStr.charAt(0) == '2') { // the person is in the waiting list;
+				String indexStr = specialNumberStr.substring(1);
+				int indexInWaitingList = Integer.valueOf(indexStr).intValue();
+				changeSpecificDetails(GuestsList.waitingList, indexInWaitingList);
+			}
+		} else {
+			System.out.println("Persoana cautata nu a fost gasita in niciuna dintre liste.");
+		}
+	}
+
+	private static void changeSpecificDetails(ArrayList<Guest> list, int index) {
+		System.out.println("Ce camp / campuri ale participantului in cauza ati dori sa modificati?\n\tIntroduceti 1 pentru modificarea prenumelui.\n\tIntroduceti 2 pentru modificarea numelui.\n\tIntroduceti 3 pentru modificarea adresei de email.\n\tIntroduceti 4 pentru modificarea numarului de telefon.\n\tIntroduceti 5 in cazul in care nu (mai) doriti sa modificati niciun camp.");
+		int answer = sc.nextInt();
+		while (answer != 5) {
+			switch (answer) {
+				case 1:
+					System.out.println("Introduceti noul prenume:");
+					String firstName = sc.next();
+					list.get(index).setFirstName(firstName); 
+					break;
+				case 2:
+					System.out.println("Introduceti noul nume:");
+					String lastName = sc.next();
+					list.get(index).setLastName(lastName);
+					break;
+				case 3: 
+					System.out.println("Introduceti noua adresa de email:");
+					String email = sc.next();
+					list.get(index).setEmail(email);
+					break;
+				case 4: 
+					System.out.println("Introduceti noul numar de telefon:");
+					String phoneNumber = sc.next();
+					list.get(index).setPhoneNumber(phoneNumber);
+					break;
+				default:
+					System.out.println("Ati introdus un numar invalid. Va rugam\\n\\tIntroduceti 1 pentru modificarea prenumelui.\\n\\tIntroduceti 2 pentru modificarea numelui.\\n\\tIntroduceti 3 pentru modificarea adresei de email.\\n\\tIntroduceti 4 pentru modificarea numarului de telefon.\\n\\tIntroduceti 5 in cazul in care nu (mai) doriti sa modificati niciun camp.");
+					break;
+			}
+			System.out.println("In cazul in care mai doriti sa modificati un camp, introduceti o cifra de la 1 la 4, conform optiunilor anterioare. Pentru a nu mai modifica nimic, introduceti 5.");
+			answer = sc.nextInt();
+		}
+	}
+	
+	public static ArrayList<Guest> getParticipantsList () { 
+		return GuestsList.participantsList;
+	}
+	public static ArrayList<Guest> getWaitingList () {
+		return GuestsList.waitingList;
+	}
+	public static int getAvailableSpots() {
+		return availableSpots;
+	}
+	public static void setAvailableSpots (int availableSpots) {
+		GuestsList.availableSpots = availableSpots;
+	}
+
+	public static ArrayList<Guest> partialSearch (String key) { 
+		ArrayList<Guest> result = new ArrayList<Guest>();
+		key = key.toLowerCase();
+		int contact = 1;
+		for (int i = 0; i < GuestsList.participantsList.size(); i++) {
+			Guest g = GuestsList.participantsList.get(i);
+			if (g.getFirstName().toLowerCase().contains(key)) {
+				System.out.println("Contact " + contact + ": contine prenume: " + g.getFirstName());
+				contact++;
+				result.add(g);
+			} 
+			if (g.getLastName().toLowerCase().contains(key)) {
+				System.out.println("Contact " + contact + ": contine nume: " + g.getLastName());
+				contact++;
+				result.add(g);
+			}
+			if (g.getEmail().toLowerCase().contains(key)) {
+				System.out.println("Contact " + contact + ": contine email: " + g.getEmail());
+				contact++;
+				result.add(g);
+			}
+			if (g.getPhoneNumber().contains(key)) {
+				System.out.println("Contact " + contact + ": contine numarul de telefon: " + g.getPhoneNumber());
+				contact++;
+				result.add(g);
+			}
+		}
+		for (int i = 0; i < GuestsList.waitingList.size(); i++) {
+			Guest g = GuestsList.waitingList.get(i);
+			if (g.getFirstName().toLowerCase().contains(key)) {
+				System.out.println("Contact " + contact + ": contine prenume: " + g.getFirstName());
+				contact++;
+				result.add(g);
+			} 
+			if (g.getLastName().toLowerCase().contains(key)) {
+				System.out.println("Contact " + contact + ": contine nume: " + g.getLastName());
+				contact++;
+				result.add(g);
+			}
+			if (g.getEmail().toLowerCase().contains(key)) {
+				System.out.println("Contact " + contact + ": contine email: " + g.getEmail());
+				contact++;
+				result.add(g);
+			}
+			if (g.getPhoneNumber().contains(key)) {
+				System.out.println("Contact " + contact + ": contine numarul de telefon: " + g.getPhoneNumber());
+				contact++;
+				result.add(g);
+			}
+		}
+		// now remove the duplicates in result; 
+		for (int i = 0; i < result.size(); i++) {
+			for (int j = i + 1; j < result.size(); j++) {
+				if (result.get(i).equals(result.get(j))) {
+					result.remove(i);
+					i--;
+				}
+			}
+		}
+		return result; 
+	}
+	private static boolean validatePhoneNumber (String phoneNumber) {
+		//trebuie sa aiba formatul +40712345678; 12 caractere, cifre neaparat! 
+		if (phoneNumber.length() != 12) {
+			return false;
+		}
+		if (phoneNumber.charAt(0) != '+') {
+			return false;
+		}
+		for (int i = 1; i < phoneNumber.length(); i++) { // starts from index 1, because on index 0 there is the +, which !isDigit.
+			if (!Character.isDigit(phoneNumber.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+	private static boolean validateEmail (String email) {
+		if (!email.contains("@") || email.indexOf("@") == 0 || email.indexOf("@") == (email.length() - 1) || email.charAt(email.length() - 1) == '.') {
+			return false;
+		}
+		if (email.lastIndexOf(".") < email.indexOf("@") || email.lastIndexOf(".") == (email.indexOf("@") + 1)) {
+			return false;
+		}
+		if (email.indexOf("@") != email.lastIndexOf("@")) {
+			return false;
+		}
+		return true;
+	}
+	private static boolean validateName (String name) {
+		for (int i = 0; i < name.length(); i++) {
+			if (!Character.isLetter(name.charAt(i)) && name.charAt(i) != '-') { // cratima permisa pt nume multiple
+				return false;
+			}
+		}
+		return true;
+	}
+}  

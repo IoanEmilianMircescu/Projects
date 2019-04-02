@@ -1,0 +1,22 @@
+package surprises;
+
+public class MinionToy implements ISurprise {
+	private static final String[] minions = {"Dave", "Stuart", "Jerry", "Kevin", "Mark", "Phil", "Carl", "Josh"};
+	private final String chosenMinion;
+	private static int nextToOffer = 0;
+	
+	public MinionToy(String name) {
+		this.chosenMinion = name;
+	}
+	
+	@Override 
+	public void enjoy() {
+		System.out.println("Enjoy playing with your new " + this.chosenMinion + " toy!");
+	}
+	
+	public static ISurprise generate() { 
+		String chosenMinion = minions[nextToOffer];
+		nextToOffer = (nextToOffer + 1 == minions.length) ? 0 : nextToOffer + 1;
+		return new MinionToy(chosenMinion);
+	}
+}

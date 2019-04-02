@@ -1,0 +1,45 @@
+package surprises;
+
+import java.util.Random;
+
+public class FortuneCookie implements ISurprise {
+	private static final String[] quotes = {"„Timpul linişteşte și lămureşte. Nicio stare sufletească nu poate rămâne neschimbată de-a lungul timpului.” — Thomas Mann",
+			"„Nu spune puţin în vorbe multe, ci mult în vorbe puţine.” — Pitagora",
+			"„Egalitatea nu există decât în matematică.” — Mihai Eminescu",
+			"„Inima omului e largă, de ce unii şi-o poartă strâmtă şi plină de ură?” — Marin Preda",
+			"„Un om deştept poate să înveţe şi de la un prost. Invers e mai greu.” — François Rabelais",
+			"„Uitarea şi mersul mai departe sunt cea mai mare înţelepciune.” — Friedrich Nietzsche", 
+			"„Învaţă regulile ca un profesionist, ca să le încalci ca un artist.” — Pablo Picasso", 
+			"„O furnică nu poate răsturna un munte, dar îl poate muta din loc încet, bucăţică cu bucăţică.” — Marin Preda",
+			"„Viaţa poate fi trăită oriunde. Decorul nu are nicio importanţă, esenţială este intensitatea.” — Cezar Petrescu", 
+			"„Nici măcar Dumnezeu nu are de gând să judece oamenii până nu şi-au dat ultima suflare.” — Samuel Johnson",
+			"„Toată raţiunea noastră cedează în faţa sentimentelor.” — Blaise Pascal",
+			"„Sinceritatea este forma cea mai îndrăzneaţă a curajului.” — William Somerset Maugham",
+			"„Valoarea unui lucru creşte proporțional cu dificultatea de a-l dobândi.” — Thomas Mann",
+			"„Secretul cel mai greu de păstrat pentru un om este părerea pe care o are despre el însuşi.” — Marcel Pagnol",
+			"„Neînţelegerea dintre oameni provine din faptul că unii trăiesc mai mult în trecut, iar alţii în prezent.” — André Maurois",
+			"„Caracterul celui care vorbeşte este acela care convinge, nu vorba.” — Menandru",
+			"„Nimic nu este pierdut cât timp credinţa e în picioare, cât sufletul nu abdică şi capul se ridică din nou.” — Arsenie Papacioc",
+			"„Sunt unii oameni care au puterea de a iubi şi alţii care iubesc puterea.” — Bob Marley",
+			"„Dă tot ce ai mai bun în tine, întrucât totul din viaţa ta îţi aparţine numai ţie.” — Ralph Waldo Emerson",   
+			"„Dacă văd o nedreptate şi nu fac nimic s-o îndrept, sunt laş.” — Confucius",
+			"„Care este cel mai mare duşman al omului, dacă nu propria sa minte?” — Buddha"}; 
+	private static final String enjoyText = "May this quote inspire you!";
+	private final String chosenQuote;
+	private static final Random random = new Random();
+	
+	public FortuneCookie (String quote) {
+		this.chosenQuote = quote;
+	}
+	
+	@Override
+	public void enjoy() { 
+		System.out.println(FortuneCookie.enjoyText);
+		System.out.println(this.chosenQuote);
+	}
+	
+	public static ISurprise generate() {
+		int n = random.nextInt(quotes.length);
+		return new FortuneCookie(quotes[n]);
+	}	
+}

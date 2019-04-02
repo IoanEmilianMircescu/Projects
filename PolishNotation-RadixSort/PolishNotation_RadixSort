@@ -1,0 +1,184 @@
+import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.List;
+
+public class Project3 {
+	private static boolean isOperatorOrOperand (String s) {
+		if (s.length() == 1 && !Character.isDigit(s.charAt(0))) {
+			return true; // it is operator --> ( or ) or + or - or * or / or ^; 
+		}
+		return false; // it is operand (number);
+	}
+	
+	private static int precedence (String operator) {
+		if (operator.equals("+") || operator.equals("-")) {
+			return 11;
+		}
+		if (operator.equals("*") || operator.equals("/")) {
+			return 12;
+		}
+		if (operator.equals("^")) {
+			return 13;
+		}
+		return -1;
+	}
+	
+	public static ArrayList<String> reversePolishNotation (ArrayList<String> expr) {
+		ArrayList<String> polishNotation = new ArrayList<String>(expr.size());
+		Deque<String> operatorStack = new ArrayDeque<String>();
+		for (int i = 0; i < expr.size(); i++) {
+			String current = expr.get(i);
+			boolean currentType = isOperatorOrOperand(current);
+			if (currentType) { // it is operator
+				if (current.equals("(")) {
+					operatorStack.push(current);
+				} else if (current.equals(")")) {
+					boolean foundLeftParanth = false;
+					while (!operatorStack.isEmpty() && !operatorStack.peek().equals("(")) {
+						polishNotation.add(operatorStack.pop());
+					}
+					if (!operatorStack.isEmpty() && operatorStack.peek().equals("(")) {
+						operatorStack.pop();
+						foundLeftParanth = true;
+					}
+					if (operatorStack.isEmpty() && !foundLeftParanth) {
+						System.out.println("The introduced expression was invalid.");
+						return null;
+					}
+				} else {
+					while (!operatorStack.isEmpty() && !operatorStack.peek().equals("(") && (precedence(current) < precedence(operatorStack.peek()) || 
+					precedence(current) == precedence(operatorStack.peek()) && !operatorStack.peek().equals("^"))) {
+						polishNotation.add(operatorStack.pop());
+					}
+					operatorStack.push(current);
+				}
+			} else { // operand
+				polishNotation.add(current);
+			}
+		}
+		while (!operatorStack.isEmpty()) {
+			if (operatorStack.peek().equals("(")) {
+				System.out.println("The introduced expression was invalid.");
+				return null;
+			} else {
+				polishNotation.add(operatorStack.pop());
+			}
+		}
+		return polishNotation;
+	}
+	
+	public static int evalRPN (ArrayList<String> tokens) {
+		Deque<Integer> stack = new ArrayDeque<Integer>();
+		for (int i = 0; i < tokens.size(); i++) {
+			if (!isOperatorOrOperand(tokens.get(i))) {
+				stack.push(Integer.valueOf(tokens.get(i)));
+			} else {
+				int op1 = stack.pop();
+				int op2 = stack.pop();
+				int result = 0;
+				String operator = tokens.get(i);
+				switch(operator) {
+					case "+":
+						result = op2 + op1;
+						break;
+					case "-":
+						result = op2 - op1;
+						break;
+					case "*":
+						result = op2 * op1;
+						break;
+					case "/":
+						result = op2 / op1;
+						break;
+					case "^":
+						result = op2;
+						for (int j = 1; j < op1; j++) {
+							result *= op2;
+						}
+				}
+				stack.push(result);
+			}
+		}
+		return stack.pop();
+	}
+
+	public static void radixSortAscending(String[] list) {
+		int maxNrLength = 0;
+		for (int i = 0; i < list.length; i++) {
+			maxNrLength = (list[i].length() > maxNrLength) ? list[i].length() : maxNrLength;
+		}
+		for (int i = 0; i < list.length; i++) {
+			String format = "%0" + maxNrLength + "d";
+			list[i] = String.format(format, Integer.valueOf(list[i]));
+		}
+		List<Deque<String>> queues = new ArrayList<Deque<String>>();
+		for (int i = 0; i < 10; i++) {
+			queues.add(new ArrayDeque<String>());
+		}
+		for (int i = maxNrLength - 1; i >= 0; i--) {
+			for (int j = 0; j < list.length; j++) {
+				String crtElem = list[j];
+				int signifDigit = Integer.valueOf(crtElem.charAt(i) + "");
+				queues.get(signifDigit).add(crtElem);
+			}
+			int fillingIndex = 0;
+			for (int k = 0; k < queues.size(); k++) {
+				while (!queues.get(k).isEmpty()) {
+					list[fillingIndex++] = queues.get(k).remove();
+				}
+			}
+		}
+	}
+	
+	public static void radixSortDescending(String[] list) {
+		int maxNrLength = 0;
+		for (int i = 0; i < list.length; i++) {
+			maxNrLength = (list[i].length() > maxNrLength) ? list[i].length() : maxNrLength;
+		}
+		for (int i = 0; i < list.length; i++) {
+			String format = "%0" + maxNrLength + "d";
+			list[i] = String.format(format, Integer.valueOf(list[i]));
+		}
+		List<Deque<String>> queues = new ArrayList<Deque<String>>();
+		for (int i = 0; i < 10; i++) {
+			queues.add(new ArrayDeque<String>());
+		}
+		for (int i = maxNrLength - 1; i >= 0; i--) {
+			for (int j = 0; j < list.length; j++) {
+				String crtElem = list[j];
+				int signifDigit = Integer.valueOf(crtElem.charAt(i) + "");
+				queues.get(signifDigit).add(crtElem);
+			}
+			int fillingIndex = 0;
+			for (int k = queues.size() - 1; k >= 0; k--) {
+				while (!queues.get(k).isEmpty()) {
+					list[fillingIndex++] = queues.get(k).remove();
+				}
+			}
+		}
+	}
+	
+	public static void main(String[]args) {
+		ArrayList<String> expr = new ArrayList<String>(Arrays.asList("3","+","(","2","+","1",")","*","2","^","3","^","2","-","8","/","(","5","-","1","*","2","/","2",")"));
+		System.out.println(expr);
+		ArrayList<String> polish = reversePolishNotation(expr);
+		System.out.println(polish);
+		int result = evalRPN(polish);
+		System.out.println(result);
+		System.out.println();
+		ArrayList<String> expr2 = new ArrayList<String>(Arrays.asList("(","17","^","3",")","*","2","+","8","-","4","-","8","*","4","+","22","^","2","^","3","*","(","(","(","-1","+","2",")","-","55",")","/","2",")"));
+		System.out.println(expr2);
+		ArrayList<String> polish2 = reversePolishNotation(expr2);
+		System.out.println(polish2);
+		int result2 = evalRPN(polish2);
+		System.out.println(result2);
+		System.out.println();
+		String[] radixArr = {"1000", "4", "25", "319", "88", "51", "3430", "8471", "701", "1", "2989", "657", "713"};
+		radixSortDescending(radixArr);
+		for (int i = 0; i < radixArr.length; i++) {
+			System.out.print(radixArr[i] + " ");
+		}
+	}
+}

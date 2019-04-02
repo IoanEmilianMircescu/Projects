@@ -1,0 +1,15 @@
+package surprises;
+
+public class GiveSurpriseAndSing extends AbstractGiveSurprises {
+	public GiveSurpriseAndSing(String bagType, int waitTime) {
+		super(bagType, waitTime);
+	}
+	
+	public GiveSurpriseAndSing(IBag tolba, int waitTime) {
+		super(tolba, waitTime);
+	}
+	
+	protected void giveWithPassion() {
+		System.out.println("Singing a beautiful song, full of joy and genuine excitement...");
+	}
+}
